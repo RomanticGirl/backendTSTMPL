@@ -25,54 +25,72 @@ export const bookRoutes: Route[] = [
     {
         method: "POST",
         url: '/books',
-        handler: (req, reply) => {
-            return reply.send({
-                '1. Добавление книги HTTP метод': 'POST',
-                'Эндпоинт': '/books',
-                'Тело запроса': 'JSON с полями title, author, publicationDate, genres',
-                'Ответ': 'JSON с данными добавленной книги',
-                'Требует аутентификации': '(только для пользователей с ролью "администратор")'
-            })
+        handler: async (req, reply) => {
+            const baseService = new BaseService();
+            return reply.send(JSON.stringify((await baseService.create(req.body))));
         },
         schema: {
             response: {
                 200: {
                     type: 'object',
                     properties: {
-                        '1. Добавление книги HTTP метод': {
+                        id: {
+                            type: 'number'
+                        },
+                        title: {
                             type: 'string'
                         },
-                        'Эндпоинт': {
+                        author: {
                             type: 'string'
                         },
-                        'Тело запроса': {
+                        publicationDate: {
                             type: 'string'
                         },
-                        'Ответ': {
-                            type: 'string'
-                        },
-                        'Требует аутентификации': {
-                            type: 'string'
-                        },
+                        genres: {
+                            type: 'array',
+                            items: {
+                                type: 'string'
+                            }
+                        }
                     }
                 }
             }
-        },
+        }
     },
     {
         method: "GET",
         url: '/books',
         handler: async (req, reply) => {
             const baseService = new BaseService();
-            return reply.send(JSON.stringify((await baseService.getAll()).rows));
+            return reply.send(JSON.stringify((await baseService.getAll())));
         },
         schema: {
             response: {
                 200: {
-                    type: 'object',
+                    type: 'array',
                     properties: {
                         books: {
-                            type: 'string'
+                            type: 'object',
+                            properties: {
+                                id: {
+                                    type: 'number'
+                                },
+                                title: {
+                                    type: 'string'
+                                },
+                                author: {
+                                    type: 'string'
+                                },
+                                publicationDate: {
+                                    type: 'string'
+                                },
+                                genres: {
+                                    type: 'array',
+                                    items: {
+                                        type: 'string'
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -82,19 +100,37 @@ export const bookRoutes: Route[] = [
     {
         method: "GET",
         url: '/books/:id',
-        handler: () => { return { books: 'BOOKS GET BY ID!' } },
+        handler: async (req, reply) => {
+            const baseService = new BaseService();
+            return reply.send(JSON.stringify((await baseService.getById(req.params))));
+        },
         schema: {
             response: {
                 200: {
                     type: 'object',
                     properties: {
-                        books: {
+                        id: {
+                            type: 'number'
+                        },
+                        title: {
                             type: 'string'
+                        },
+                        author: {
+                            type: 'string'
+                        },
+                        publicationDate: {
+                            type: 'string'
+                        },
+                        genres: {
+                            type: 'array',
+                            items: {
+                                type: 'string'
+                            }
                         }
                     }
                 }
             }
-        },
+        }
     },
     {
         method: "PUT",

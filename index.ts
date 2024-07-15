@@ -1,4 +1,4 @@
-import Fastify, { FastifyInstance, FastifyReply, FastifyRequest, FastifySchema, HTTPMethods, RouteShorthandOptions } from 'fastify'
+import Fastify, { FastifyInstance, RouteShorthandOptions } from 'fastify'
 import { bookRoutes, route } from './src/books/books.controller'
 
 const server: FastifyInstance = Fastify({})
@@ -35,7 +35,6 @@ const start = async () => {
         const address = server.server.address()
         const port = typeof address === 'string' ? address : address?.port
         console.log(`listening on port ${port}`)
-
     } catch (err) {
         server.log.error(err)
         process.exit(1)

@@ -1,4 +1,11 @@
-class BooksService {
+import { BaseService } from "../base/base.service";
+
+export class BooksService extends BaseService {
+    tableName: string;
+    constructor() {
+        super();
+        this.tableName = "Books";
+    }
     // Добавление книги
     async createBook() {
         
