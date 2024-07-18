@@ -135,14 +135,32 @@ export const bookRoutes: Route[] = [
     {
         method: "PUT",
         url: '/books/:id',
-        handler: () => { return { books: 'BOOKS UPDATE BY ID!' } },
+        handler: async (req, reply) => {
+            const baseService = new BaseService();
+            return reply.send(JSON.stringify((await baseService.update(req.params, req.body))));
+        },
         schema: {
             response: {
                 200: {
                     type: 'object',
                     properties: {
-                        books: {
+                        id: {
+                            type: 'number'
+                        },
+                        title: {
                             type: 'string'
+                        },
+                        author: {
+                            type: 'string'
+                        },
+                        publicationDate: {
+                            type: 'string'
+                        },
+                        genres: {
+                            type: 'array',
+                            items: {
+                                type: 'string'
+                            }
                         }
                     }
                 }
@@ -152,16 +170,18 @@ export const bookRoutes: Route[] = [
     {
         method: "DELETE",
         url: '/books/:id',
-        handler: () => { return { books: 'BOOK DELETE BY ID!' } },
+        handler: async (req, reply) => {
+            const baseService = new BaseService();
+            const res = await baseService.delete(req.params)
+            return reply.code(res!).send(res);
+        },
         schema: {
             response: {
                 200: {
-                    type: 'object',
-                    properties: {
-                        books: {
-                            type: 'string'
-                        }
-                    }
+                    type: 'number',
+                },
+                404: {
+                    type: 'number',
                 }
             }
         },

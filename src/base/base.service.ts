@@ -46,8 +46,8 @@ export class BaseService {
             fullFields = fullFields.slice(0, -1);
             const book = await this.pool.query(`INSERT INTO public.books(
                 ${fullFields})
-                VALUES (${values});`);
-            return book;
+                VALUES (${values}) RETURNING id;`);
+            return await this.getById(book.rows[0]);
         } catch (err) {
             if (err instanceof Error && err.message.includes('public.books')) {
                 await this.createTable();
@@ -58,6 +58,7 @@ export class BaseService {
             }
         }
     }
+
     public async getAll() {
         try {
             const books = await this.pool.query(`SELECT * FROM public.books`);
@@ -72,10 +73,11 @@ export class BaseService {
             }
         }
     }
+
     async getById(searchParams: SearchParams | any) {
         try {
             const book = await this.pool.query(`SELECT * FROM public.books WHERE id=${searchParams.id}`);
-            return book.rows;
+            return book.rows[0];
         } catch (err) {
             if (err instanceof Error && err.message.includes('public.books')) {
                 await this.createTable();
@@ -86,10 +88,38 @@ export class BaseService {
             }
         }
     }
-    async update(searchParams: SearchParams | any) {
-
+    async update(searchParams: SearchParams | any, body: CreateBook | any) {
+        try {
+            let updateFieldsAndValues = "";
+            for (const [key, value] of Object.entries(body)) {
+                if (Array.isArray(value)) {
+                    updateFieldsAndValues += key + "='{" + value + "}', "
+                } else {
+                    updateFieldsAndValues += key + "='" + value + "', "
+                }
+            }
+            updateFieldsAndValues = updateFieldsAndValues.slice(0, -2);
+            const book = await this.pool.query(`UPDATE public.books SET ${updateFieldsAndValues} WHERE id=${searchParams.id} RETURNING id;`);
+            return await this.getById(book.rows[0]);
+        } catch (err) {
+            if (err instanceof Error && err.message.includes('public.books')) {
+                await this.createTable();
+                return {};
+            }
+            if (err instanceof Error) {
+                throw new Error(err.message);
+            }
+        }
     }
-    async delete(searchParams: SearchParams | any) {
 
+    async delete(searchParams: SearchParams | any) {
+        try {
+            const book = await this.pool.query(`DELETE FROM public.books WHERE id=${searchParams.id} RETURNING id;`);
+            return book.rows.length > 0 ? 200 : 404;
+        } catch (err) {
+            if (err instanceof Error) {
+                throw new Error(err.message);
+            }
+        }
     }
 }
